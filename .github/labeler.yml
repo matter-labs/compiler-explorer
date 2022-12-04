@@ -148,6 +148,7 @@ lang-scala:
   - etc/config/scala.*.properties
 lang-solidity:
   - lib/compilers/solidity.js
+  - lib/compilers/solidity-zkevm.js
   - etc/config/solidity.*.properties
 lang-swift:
   - lib/compilers/swift.js
