@@ -57,7 +57,7 @@ export class SolidityZKEVMCompiler extends BaseCompiler {
     }
 
     override isCfgCompiler(/*compilerVersion*/) {
-        return true;
+        return false;
     }
 
     override getOutputFilename(dirPath: string) {
