@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Compiler Explorer Authors
+// Copyright (c) 2022, Matter Labs
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,13 +22,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-import * as fs from 'fs';
 import path from 'path';
 
-import Semver from 'semver';
-
+import {ParseFiltersAndOutputOptions} from '../../types/features/filters.interfaces';
 import {BaseCompiler} from '../base-compiler';
-import {asSafeVer} from '../utils';
 
 import {ClangParser} from './argument-parsers';
 
@@ -37,15 +34,19 @@ export class SolidityZKEVMCompiler extends BaseCompiler {
         return 'solidity-zkevm';
     }
 
-    getSharedLibraryPathsAsArguments() {
+    override getSharedLibraryPathsAsArguments() {
         return [];
     }
 
-    getArgumentParser() {
+    override getArgumentParser() {
         return ClangParser;
     }
 
-    optionsForFilter(filters, outputFilename, userOptions) {
+    override optionsForFilter(
+        filters: ParseFiltersAndOutputOptions,
+        outputFilename: string,
+        userOptions?: string[],
+    ): string[] {
         return [
             // We use --combined-json instead of `--asm-json` to have compacted json
             '--combined-json',
@@ -55,27 +56,25 @@ export class SolidityZKEVMCompiler extends BaseCompiler {
         ];
     }
 
-    isCfgCompiler(/*compilerVersion*/) {
-        return false;
+    override isCfgCompiler(/*compilerVersion*/) {
+        return true;
     }
 
-    getOutputFilename(dirPath) {
+    override getOutputFilename(dirPath: string) {
         return path.join(dirPath, 'contracts/combined.json');
     }
 
-    processAsm(result) {
+    override processAsm(result) {
         // Handle "error" documents.
         if (!result.asm.includes('\n') && result.asm[0] === '<') {
             return {asm: [{text: result.asm}]};
         }
 
         const combinedJson = JSON.parse(result.asm);
-        return {
-            asm: Object.entries(combinedJson.contracts)
-                .map(([name, data]) => {
-                    return [{text: data.asm}];
-                })
-                .flat(Infinity),
-        };
+        const asm: any[] = [];
+        for (const [path, build] of Object.entries(combinedJson.contracts) as [string, JSON][]) {
+            asm.push({text: build['asm']});
+        }
+        return {asm};
     }
 }
