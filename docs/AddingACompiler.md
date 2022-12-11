@@ -100,8 +100,9 @@ once the site runs on the Amazon environment, the `&clang` group **will not** ha
 | interpreted      | Boolean    | Whether this is an interpreted language, and so the "compiler" is really an interpreter                          |
 | executionWrapper | Path       | Path to script that can execute the compiler's output (e.g. could run under `qemu` or `mpi_run` or similar)      |
 
-The `compilerType` option is special: it refers to the Javascript class in `lib/compilers/*.js` which handles running
-and handling output for this compiler type.
+The `compilerType` option refers to the class in the `lib/compilers/` directory, where the implementation of this
+compiler type is located. The value of this option must match the implementation file name and the value returned by the
+`key()` method.
 
 ## Adding a new compiler locally
 
